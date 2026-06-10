@@ -371,7 +371,6 @@ async function main() {
           `  • ${coinName(y.FeeB.CoinType)}: ${y.FeeB.unClaimedFor24HAmount} ($${fmtUSD(feeBUSD)})\n\n` +
           (miningLines ? `<b>Mining Rewards</b>\n${miningLines}\n` : "") +
           `<b>Total Claimável: $${fmtUSD(totalUSD)}</b>\n\n` +
-          telegramRangeBar(data.pool.currentPrice, data.derived.priceLower, data.derived.priceUpper) + "\n\n" +
           `⏰ ${new Date().toLocaleString("pt-BR")}`
         );
         lastYieldNotif = Date.now();
