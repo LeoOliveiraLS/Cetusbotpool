@@ -32,6 +32,32 @@ function lifeTime() {
   return `${minutes}m`;
 }
 
+function telegramRangeBar(currentPrice, priceLower, priceUpper) {
+  const BAR_WIDTH = 20;
+  const pct       = (currentPrice - priceLower) / (priceUpper - priceLower);
+  const inRange   = pct >= 0 && pct <= 1;
+  const clamped   = Math.max(0, Math.min(1, pct));
+  const cursorPos = Math.round(clamped * (BAR_WIDTH - 1));
+
+  let bar = "";
+  for (let i = 0; i < BAR_WIDTH; i++) {
+    if (i === cursorPos) bar += "▷";
+    else if (i < cursorPos) bar += "▓";
+    else bar += "░";
+  }
+
+  const pctStr   = inRange ? `${(pct * 100).toFixed(1)}%` : pct < 0 ? "ABAIXO ⬇️" : "ACIMA ⬆️";
+  const distMin  = ((currentPrice - priceLower) / priceLower * 100).toFixed(1);
+  const distMax  = ((priceUpper - currentPrice) / priceUpper * 100).toFixed(1);
+
+  return (
+    `📊 <b>Posição no Range</b>\n` +
+    `<code>[${bar}]  ${pctStr}</code>\n` +
+    `<code>${priceLower.toFixed(5)}         ${priceUpper.toFixed(5)}</code>\n` +
+    `dist. min: ${distMin}%   dist. max: ${distMax}%`
+  );
+}
+
 async function sendTelegram(text) {
   try {
     await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
@@ -317,13 +343,27 @@ async function main() {
       miningLines += `  • ${coinName(m.CoinType)}: ${m.unClaimedFor24HAmount} ($${fmtUSD(Number(m.uUnClaimedFor24HUSD))})\n`;
     });
 
+    // busca dados do pool para a barra (só preço e range)
+    const posRes = await rpc("sui_getObject", [POSITION_ID, { showContent: true }]);
+    const pf2    = posRes?.data?.content?.fields;
+    const poolRes2 = pf2 ? await rpc("sui_getObject", [pf2.pool, { showContent: true }]) : null;
+    let barLine = "";
+    if (poolRes2?.data?.content?.fields) {
+      const pool2   = poolRes2.data.content.fields;
+      const curP    = sqrtPriceToPrice(pool2.current_sqrt_price);
+      const tl      = toSignedI32(pf2.tick_lower_index?.fields?.bits ?? pf2.tick_lower_index);
+      const tu      = toSignedI32(pf2.tick_upper_index?.fields?.bits ?? pf2.tick_upper_index);
+      barLine = "\n" + telegramRangeBar(curP, tickToPrice(tl), tickToPrice(tu)) + "\n";
+    }
+
     await sendTelegram(
       `💰 <b>Claimable Yield — DEEP/SUI</b>\n\n` +
       `<b>Fees</b>\n` +
       `  • ${coinName(y.FeeA.CoinType)}: ${y.FeeA.unClaimedFor24HAmount} ($${fmtUSD(feeAUSD)})\n` +
       `  • ${coinName(y.FeeB.CoinType)}: ${y.FeeB.unClaimedFor24HAmount} ($${fmtUSD(feeBUSD)})\n\n` +
       (miningLines ? `<b>Mining Rewards</b>\n${miningLines}\n` : "") +
-      `<b>Total Claimável: $${fmtUSD(totalUSD)}</b>\n\n` +
+      `<b>Total Claimável: $${fmtUSD(totalUSD)}</b>\n` +
+      barLine +
       `⏰ ${new Date().toLocaleString("pt-BR")}`
     );
   } catch (e) {
@@ -371,6 +411,7 @@ async function main() {
           `  • ${coinName(y.FeeB.CoinType)}: ${y.FeeB.unClaimedFor24HAmount} ($${fmtUSD(feeBUSD)})\n\n` +
           (miningLines ? `<b>Mining Rewards</b>\n${miningLines}\n` : "") +
           `<b>Total Claimável: $${fmtUSD(totalUSD)}</b>\n\n` +
+          telegramRangeBar(data.pool.currentPrice, data.derived.priceLower, data.derived.priceUpper) + "\n\n" +
           `⏰ ${new Date().toLocaleString("pt-BR")}`
         );
         lastYieldNotif = Date.now();
