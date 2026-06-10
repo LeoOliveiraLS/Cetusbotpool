@@ -333,7 +333,7 @@ async function main() {
   let iteration      = 0;
   let wasInRange     = true;
   let lastYieldNotif = Date.now(); // controle do intervalo de 30min
-  const YIELD_NOTIF_INTERVAL = 30 * 60 * 1000; // 30 minutos em ms
+  const YIELD_NOTIF_INTERVAL = 5 * 60 * 1000; // 30 minutos em ms
 
   const run = async () => {
     iteration++;
