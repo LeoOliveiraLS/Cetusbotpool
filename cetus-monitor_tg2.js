@@ -7,7 +7,7 @@ const CETUS_API    = "https://api-sui.cetus.zone";
 // ─── CONFIGURE AQUI ──────────────────────────────────────────────────────────
 const POSITION_ID      = "0xc3c526fe485f2900b72b06ea3e7f20a7905d28e1c98fb67f3e350b08c5c743e4";
 const POSITION_CREATED = 1781210903597; // timestamp de criação em ms
-const INTERVAL_MS      = 30_000;
+const INTERVAL_MS      = 40_000;
 const TG_TOKEN         = "8768478427:AAEyBm8woaPapJOvRvRmdSroK0i-GGAUClo";
 const TG_CHAT_ID       = "776460062";
 // ─────────────────────────────────────────────────────────────────────────────
