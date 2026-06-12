@@ -5,8 +5,8 @@ const RPC_URL      = "https://fullnode.mainnet.sui.io";
 const CETUS_API    = "https://api-sui.cetus.zone";
 
 // ─── CONFIGURE AQUI ──────────────────────────────────────────────────────────
-const POSITION_ID      = "0x8283b01a701de05af68280a386954068160816b53a69a487e07acaca881c65c0";
-const POSITION_CREATED = 1781276033965; // timestamp de criação em ms
+const POSITION_ID      = "0xfe07048d7182224e0708b614a5b1f1982e1bf94c243741a26c4daf4bf34d4c17";
+const POSITION_CREATED = 1781298859119; // timestamp de criação em ms
 const INTERVAL_MS      = 40_000;
 const TG_TOKEN         = "8768478427:AAEyBm8woaPapJOvRvRmdSroK0i-GGAUClo";
 const TG_CHAT_ID       = "776460062";
